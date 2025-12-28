@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary App</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<div class="app-container">
+    <div class="controls-row">
+        <button class="toggle-form-btn"
+                id="toggleFormBtn"
+                onclick="toggleForm()">
+            <span id="toggleIcon">➕</span>
+            <span id="toggleText">Thêm từ</span>
+        </button>
+
+        <input type="text"
+               id="searchInput"
+               placeholder="🔍 Tìm kiếm từ vựng..."
+               oninput="filterBySearch()">
+    </div>
+
+    <div class="topic-filter-bar" id="topicFilterBar"></div>
+
+    <div id="formWrapper">
+        <div class="input-form">
+            <input type="hidden" id="editId">
+
+            <input type="text" id="wordInput" placeholder="Từ mới">
+            <input type="text" id="phoneticInput" placeholder="Phiên âm">
+
+            <input type="text"
+                   id="meaningInput"
+                   class="full-width"
+                   placeholder="Nghĩa">
+
+            <input type="text"
+                   id="topicInput"
+                   class="full-width"
+                   list="existingTopics"
+                   placeholder="Chủ đề">
+
+            <datalist id="existingTopics"></datalist>
+
+            <select id="typeInput" class="full-width">
+                <option value="Noun">Noun</option>
+                <option value="Verb">Verb</option>
+                <option value="Adjective">Adjective</option>
+                <option value="Adverb">Adverb</option>
+            </select>
+
+            <button class="add-btn full-width"
+                    id="submitBtn"
+                    onclick="handleFormSubmit()">
+                Lưu từ vựng
+            </button>
+        </div>
+    </div>
+
+    <div class="vocab-list" id="vocabList"></div>
+</div>
+
+<div id="trashBin"
+     class="trash-bin"
+     ondragover="event.preventDefault()"
+     ondrop="onDropTrash(event)">
+    <span>🗑️</span>
+    <label>XÓA</label>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
