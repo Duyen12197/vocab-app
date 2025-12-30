@@ -11,11 +11,9 @@ const SearchIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="n
 const MessageSquare = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 const TypeIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>;
 const ShieldCheck = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>;
-const CameraIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
 
 // --- 2. DATA ---
 const CATEGORIES = [
- const CATEGORIES = [
   { id: '1', title: 'Gia đình', subtitle: 'Family', icon: './assets/gia-dinh.png', color: 'bg-indigo-500' },
   { id: '2', title: 'Bản thân', subtitle: 'Myself', icon: './assets/ban-than.png', color: 'bg-blue-500' },
   { id: '3', title: 'Số đếm & thời gian', subtitle: 'Numbers & Time', icon: './assets/so-dem-thoi-gian.png', color: 'bg-zinc-600' },
@@ -33,13 +31,8 @@ const WORD_TYPES = ['Noun', 'Verb', 'Adj', 'Adv'];
 function App() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [activeTab, setActiveTab] = useState('vocab');
-  const [words, setWords] = useState([
-    { id: 'w1', word: 'Greeting', type: 'Noun', meaning: 'Lời chào hỏi', category: '1', image: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=400' },
-  ]);
-  const [sentences, setSentences] = useState([
-    { id: 's1', english: 'Nice to meet you!', vietnamese: 'Rất vui được gặp bạn!', category: '1' },
-  ]);
-  
+  const [words, setWords] = useState(() => JSON.parse(localStorage.getItem('words')) || []);
+  const [sentences, setSentences] = useState(() => JSON.parse(localStorage.getItem('sentences')) || []);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItem, setNewItem] = useState({ word: '', type: 'Noun', meaning: '', image: '', english: '', vietnamese: '' });
   const [homeSearchVisible, setHomeSearchVisible] = useState(false);
@@ -47,20 +40,28 @@ function App() {
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({});
 
-  const homeSearchInputRef = useRef(null);
+  useEffect(() => {
+    localStorage.setItem('words', JSON.stringify(words));
+    localStorage.setItem('sentences', JSON.stringify(sentences));
+  }, [words, sentences]);
 
   const speak = (text) => {
+    window.speechSynthesis.cancel();
     const utterance = new window.SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('en'));
+    if (englishVoice) utterance.voice = englishVoice;
     utterance.lang = 'en-US';
+    utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
   };
 
   const handleAddItem = (e) => {
     e.preventDefault();
     const id = Date.now().toString();
-    const catId = selectedCategory?.id || '1';
+    const catId = selectedCategory.id;
     if (activeTab === 'vocab') {
-      setWords([...words, { id, word: newItem.word, type: newItem.type, meaning: newItem.meaning, image: newItem.image, category: catId }]);
+      setWords([...words, { ...newItem, id, category: catId }]);
     } else {
       setSentences([...sentences, { id, english: newItem.english, vietnamese: newItem.vietnamese, category: catId }]);
     }
@@ -69,78 +70,56 @@ function App() {
   };
 
   const checkAnswer = (id, original) => {
-    const input = (quizAnswers[id] || '').trim().toLowerCase();
+    const input = (quizAnswers[id] || '').trim().toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
     const target = original.trim().toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
     if (!input) return 'neutral';
-    return input.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") === target ? 'correct' : 'incorrect';
+    return input === target ? 'correct' : 'incorrect';
   };
 
   const renderHome = () => {
     const q = homeSearchQuery.toLowerCase().trim();
-    const filteredCats = CATEGORIES.filter(cat => !q || cat.title.toLowerCase().includes(q));
+    const filteredCats = CATEGORIES.filter(cat => !q || cat.title.toLowerCase().includes(q) || cat.subtitle.toLowerCase().includes(q));
 
     return (
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 animate-in">
         <header className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black italic">Learn English</h1>
-            <p className="text-zinc-500 text-sm font-medium uppercase tracking-widest">Self-Study App</p>
+            <h1 className="text-3xl font-black italic tracking-tighter">LEARN ENGLISH</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Smart Learning App</p>
           </div>
           <div className="flex items-center gap-2">
             {homeSearchVisible && (
               <input 
-                ref={homeSearchInputRef} type="text" placeholder="Tìm chủ đề..." 
-                className="bg-zinc-900 border border-zinc-800 rounded-xl py-2 px-4 text-white outline-none w-40 sm:w-64 focus:border-blue-500 transition-all"
+                autoFocus type="text" placeholder="Tìm chủ đề..." 
+                className="bg-zinc-900 border border-zinc-800 rounded-xl py-2 px-4 text-white outline-none w-40 focus:border-blue-500 transition-all text-sm"
                 value={homeSearchQuery} onChange={(e) => setHomeSearchQuery(e.target.value)}
               />
             )}
-            <button onClick={() => setHomeSearchVisible(!homeSearchVisible)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white transition-colors">
+            <button onClick={() => setHomeSearchVisible(!homeSearchVisible)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500">
               {homeSearchVisible ? <X /> : <SearchIcon />}
             </button>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredCats.map((cat) => (
-            <button key={cat.id} onClick={() => setSelectedCategory(cat)} className="flex items-center p-4 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition-all text-left">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-800 flex items-center justify-center shadow-lg border border-zinc-800">
-  {/* Kiểm tra nếu icon là đường dẫn file (có dấu chấm hoặc gạch chéo) */}
-  {cat.icon.includes('.') || cat.icon.includes('/') ? (
-    <img 
-      src={cat.icon} 
-      className="w-full h-full object-cover" 
-      alt={cat.title}
-      // Xử lý lỗi nếu sai tên file hoặc thiếu ảnh trong thư mục assets
-      onError={(e) => {
-        e.target.style.display = 'none';
-        e.target.parentNode.innerHTML = '<span class="text-xl">📚</span>';
-      }}
-    />
-  ) : (
-    // Nếu vẫn để là Emoji thì hiển thị bình thường
-    <span className="text-xl">{cat.icon}</span>
-  )}
-</div>
+            <button key={cat.id} onClick={() => setSelectedCategory(cat)} className="flex items-center p-4 bg-zinc-900 rounded-[24px] border border-zinc-800 hover:border-zinc-700 transition-all text-left group">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-zinc-800 flex items-center justify-center shrink-0 shadow-lg border border-zinc-800">
+                {cat.icon.includes('.') ? (
+                  <img src={cat.icon} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; e.target.parentNode.innerHTML='📚'; }} />
+                ) : <span className="text-2xl">{cat.icon}</span>}
+              </div>
               <div className="flex-1 ml-4 min-w-0">
-                {/* Hàng trên: Tiêu đề Tiếng Việt và Số lượng */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-white font-bold truncate pr-2">{cat.title}</h3>
-                  
-                  {/* Khu vực hiển thị số lượng từ và câu nằm bên phải */}
-                  <div className="flex gap-2 text-zinc-500 text-[10px] font-black shrink-0">
-                    <span className="flex items-center gap-1 uppercase">
-                      <TypeIcon /> {words.filter(w => w.category === cat.id).length}
-                    </span>
-                    <span className="flex items-center gap-1 uppercase">
-                      <MessageSquare /> {sentences.filter(s => s.category === cat.id).length}
-                    </span>
+                  <h3 className="text-white font-bold truncate pr-2 text-lg">{cat.title}</h3>
+                  <div className="flex gap-2 text-zinc-500 text-[10px] font-black shrink-0 uppercase">
+                    <span className="flex items-center gap-1"><TypeIcon /> {words.filter(w=>w.category===cat.id).length}</span>
+                    <span className="flex items-center gap-1"><MessageSquare /> {sentences.filter(s=>s.category===cat.id).length}</span>
                   </div>
                 </div>
-
-                {/* Hàng dưới: Tiêu đề Tiếng Anh nhỏ, in nghiêng */}
-                <p className="text-zinc-500 text-xs font-medium italic mt-0.5">{cat.subtitle}</p>
+                <p className="text-zinc-500 text-sm font-medium italic mt-0.5">{cat.subtitle}</p>
               </div>
-              <ChevronRight />
+              <div className="ml-2 text-zinc-700 group-hover:text-zinc-400 transition-colors"><ChevronRight /></div>
             </button>
           ))}
         </div>
@@ -162,26 +141,26 @@ function App() {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => { setIsQuizMode(!isQuizMode); setQuizAnswers({}); }} className={`p-3 rounded-2xl border transition-all ${isQuizMode ? 'bg-orange-600 text-white' : 'bg-zinc-900 text-zinc-500'}`}><ShieldCheck /></button>
-            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-600/20"><Plus /></button>
+            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white"><Plus /></button>
           </div>
         </div>
 
-        <div className={activeTab === 'vocab' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
+        <div className={activeTab === 'vocab' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20" : "grid grid-cols-1 md:grid-cols-2 gap-4 pb-20"}>
           {activeTab === 'vocab' ? filteredWords.map(item => {
             const status = checkAnswer(item.id, item.word);
             return (
-              <div key={item.id} className={`bg-zinc-900 p-4 rounded-3xl border transition-all flex gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
-                <div className="w-20 h-20 rounded-xl bg-zinc-800 overflow-hidden flex-none">
+              <div key={item.id} className={`bg-zinc-900 p-4 rounded-[28px] border transition-all flex gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                <div className="w-20 h-20 rounded-2xl bg-zinc-800 overflow-hidden shrink-0 border border-zinc-800">
                   {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-700"><ImageIcon /></div>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] text-blue-400 font-black">{item.type}</span>
-                    <button onClick={() => speak(item.word)} className="text-blue-500 p-1"><Volume2 /></button>
+                    <span className="text-[10px] text-blue-400 font-black uppercase tracking-wider">{item.type}</span>
+                    <button onClick={() => speak(item.word)} className="text-blue-500 p-1 hover:bg-zinc-800 rounded-full transition-colors"><Volume2 /></button>
                   </div>
                   {isQuizMode ? (
                     <input 
-                      className={`w-full bg-black border rounded-lg px-2 py-1.5 text-sm font-bold outline-none ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white focus:border-blue-500'}`}
+                      className={`w-full bg-black border rounded-xl px-3 py-2 text-sm font-bold outline-none transition-all ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white focus:border-blue-500'}`}
                       placeholder="Gõ từ tiếng Anh..."
                       value={quizAnswers[item.id] || ''}
                       onChange={(e) => setQuizAnswers({...quizAnswers, [item.id]: e.target.value})}
@@ -194,14 +173,14 @@ function App() {
           }) : filteredSentences.map(item => {
             const status = checkAnswer(item.id, item.english);
             return (
-              <div key={item.id} className={`bg-zinc-900 p-5 rounded-2xl border transition-all flex justify-between items-center gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
-                <div className="flex-1">
+              <div key={item.id} className={`bg-zinc-900 p-5 rounded-3xl border transition-all flex justify-between items-center gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                <div className="flex-1 min-w-0">
                   {isQuizMode ? (
                     <div className="space-y-2">
                       <p className="text-zinc-400 text-xs italic">"{item.vietnamese}"</p>
                       <textarea 
                         rows="1" 
-                        className={`w-full bg-black border rounded-xl p-2 text-sm font-bold outline-none resize-none ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white'}`}
+                        className={`w-full bg-black border rounded-2xl p-3 text-sm font-bold outline-none resize-none ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white'}`}
                         placeholder="Dịch sang tiếng Anh..."
                         value={quizAnswers[item.id] || ''}
                         onChange={(e) => setQuizAnswers({...quizAnswers, [item.id]: e.target.value})}
@@ -209,12 +188,12 @@ function App() {
                     </div>
                   ) : (
                     <>
-                      <p className="text-white font-bold">{item.english}</p>
-                      <p className="text-zinc-500 text-xs italic mt-1">{item.vietnamese}</p>
+                      <p className="text-white font-bold leading-tight text-lg">{item.english}</p>
+                      <p className="text-zinc-500 text-sm italic mt-1">{item.vietnamese}</p>
                     </>
                   )}
                 </div>
-                <button onClick={() => speak(item.english)} className="text-green-500"><Volume2 /></button>
+                <button onClick={() => speak(item.english)} className={`p-3 rounded-2xl ${status === 'correct' ? 'bg-green-500 text-white' : 'bg-zinc-800 text-green-500'}`}><Volume2 /></button>
               </div>
             )
           })}
@@ -224,29 +203,33 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100">
+    <div className="min-h-screen bg-black text-zinc-100 font-sans">
       {selectedCategory ? renderDetail() : renderHome()}
       
       {isAddingItem && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-900 w-full max-w-md rounded-3xl p-6 border border-zinc-800 shadow-2xl">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-zinc-900 w-full max-w-md rounded-[32px] p-8 border border-zinc-800 shadow-2xl animate-in">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black">Thêm vào {selectedCategory?.title}</h2>
-              <button onClick={() => setIsAddingItem(false)} className="text-zinc-500 hover:text-white"><X/></button>
+              <h2 className="text-xl font-black uppercase tracking-tight">Thêm {activeTab==='vocab'?'Từ Vựng':'Mẫu Câu'}</h2>
+              <button onClick={() => setIsAddingItem(false)} className="p-2 bg-zinc-800 rounded-full text-zinc-500"><X/></button>
             </div>
             <form onSubmit={handleAddItem} className="space-y-4">
               {activeTab === 'vocab' ? (
                 <>
-                  <input className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-blue-500" placeholder="English Word" value={newItem.word} onChange={e => setNewItem({...newItem, word: e.target.value})} />
-                  <input className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-blue-500" placeholder="Nghĩa tiếng Việt" value={newItem.meaning} onChange={e => setNewItem({...newItem, meaning: e.target.value})} />
+                  <input required className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-white outline-none focus:border-blue-500" placeholder="Từ tiếng Anh" value={newItem.word} onChange={e => setNewItem({...newItem, word: e.target.value})} />
+                  <div className="flex gap-2">
+                    {WORD_TYPES.map(t => <button key={t} type="button" onClick={()=>setNewItem({...newItem, type:t})} className={`flex-1 py-2 rounded-xl text-[10px] font-black border ${newItem.type===t?'bg-blue-600 border-blue-600 text-white':'border-zinc-700 text-zinc-500'}`}>{t}</button>)}
+                  </div>
+                  <input required className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-white outline-none focus:border-blue-500" placeholder="Nghĩa tiếng Việt" value={newItem.meaning} onChange={e => setNewItem({...newItem, meaning: e.target.value})} />
+                  <input className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-white outline-none focus:border-blue-500 text-sm" placeholder="Link ảnh (không bắt buộc)" value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} />
                 </>
               ) : (
                 <>
-                  <textarea className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-green-500" placeholder="English Sentence" value={newItem.english} onChange={e => setNewItem({...newItem, english: e.target.value})} />
-                  <textarea className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-green-500" placeholder="Nghĩa tiếng Việt" value={newItem.vietnamese} onChange={e => setNewItem({...newItem, vietnamese: e.target.value})} />
+                  <textarea required className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-white outline-none focus:border-green-500 min-h-[100px]" placeholder="Câu tiếng Anh" value={newItem.english} onChange={e => setNewItem({...newItem, english: e.target.value})} />
+                  <textarea required className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-white outline-none focus:border-green-500" placeholder="Nghĩa tiếng Việt" value={newItem.vietnamese} onChange={e => setNewItem({...newItem, vietnamese: e.target.value})} />
                 </>
               )}
-              <button className={`w-full py-4 rounded-xl font-black text-white ${activeTab==='vocab'?'bg-blue-600':'bg-green-600'}`}>Lưu lại</button>
+              <button className={`w-full py-5 rounded-2xl font-black text-white shadow-xl transition-transform active:scale-95 ${activeTab==='vocab'?'bg-blue-600 shadow-blue-900/20':'bg-green-600 shadow-green-900/20'}`}>LƯU DỮ LIỆU</button>
             </form>
           </div>
         </div>
