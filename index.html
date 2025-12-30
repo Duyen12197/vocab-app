@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Học Tiếng Anh Pro - PWA</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-black text-white">
+    <div id="root"></div>
+
+<!-- Tầng Dữ liệu -->
+<script src="du-lieu/chu-de.js"></script>
+<script src="du-lieu/tu-vung.js"></script>
+<script src="du-lieu/mau-cau.js"></script>
+
+<!-- Tầng Logic & Giao diện Sub-Components -->
+<script type="text/babel" src="du-lieu/chuc-nang.js"></script>
+<script type="text/babel" src="du-lieu/giao-dien.js"></script>
+
+<!-- App chính -->
+<script type="text/babel" src="app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW đã sẵn sàng!'))
+                    .catch(err => console.log('SW lỗi:', err));
+            });
+        }
+    </script>
+</body>
+</html>
