@@ -107,8 +107,9 @@ window.AppComponents = {
 
     return (
       <div className="max-w-[1600px] mx-auto px-4 py-4 animate-in">
-        {/* THANH ĐIỀU HƯỚNG */}
-        <div className="flex items-center gap-2 mb-6">
+
+        {/* THANH ĐIỀU HƯỚNG - Đã thêm sticky để cố định */}
+<div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md py-4 -mt-4 mb-6 flex items-center gap-2">
           <button 
             onClick={onBack} 
             className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white"
