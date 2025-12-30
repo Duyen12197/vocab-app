@@ -10,6 +10,8 @@ const assets = [
   './chu-de.js',  
   './tu-vung.js',  
   './mau-cau.js', 
+  './giao-dien.js', 
+  './chuc-nang.js',
   // 10 Icon chủ đề mới trong thư mục assets
   './assets/gia-dinh.png',
   './assets/ban-than.png',
