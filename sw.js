@@ -1,5 +1,11 @@
-const CACHE_NAME = 'eng-learn-v1';
-const assets = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json'];
+const CACHE_NAME = 'english-learn-v2';
+const assets = [
+  './',
+  './index.html',
+  './app.js',
+  './style.css',
+  './manifest.json'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(assets)));
