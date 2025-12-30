@@ -1,15 +1,26 @@
 {
-  "short_name": "EngViet",
+  "short_name": "English",
   "name": "Learn English Pro",
+  "description": "Ứng dụng học từ vựng và mẫu câu tiếng Anh thông minh.",
   "icons": [
     {
       "src": "https://cdn.jim-nielsen.com/ios/1024/study-snacks-playful-learning-2024-02-08.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn.jim-nielsen.com/ios/1024/study-snacks-playful-learning-2024-02-08.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-],
+  ],
   "start_url": "./index.html",
   "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "orientation": "portrait",
   "theme_color": "#000000",
-  "background_color": "#000000"
+  "background_color": "#000000",
+  "categories": ["education", "books"]
 }
