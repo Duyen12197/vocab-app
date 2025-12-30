@@ -84,8 +84,8 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 py-6 animate-in">
         <header className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-black italic tracking-tighter">LEARN ENGLISH</h1>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Smart Learning App</p>
+            <h1 className="text-3xl font-black italic tracking-tighter">EngViet</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Tung Doan App</p>
           </div>
           <div className="flex items-center gap-2">
             {homeSearchVisible && (
