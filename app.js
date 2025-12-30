@@ -124,49 +124,87 @@ function App() {
     </div>
   );
 
-  const renderDetail = () => {
+const renderDetail = () => {
     const q = innerSearchQuery.toLowerCase().trim();
     const filteredWords = words.filter(w => w.category === selectedCategory.id && (w.word.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q)));
     const filteredSentences = sentences.filter(s => s.category === selectedCategory.id && (s.english.toLowerCase().includes(q) || s.vietnamese.toLowerCase().includes(q)));
 
     return (
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4 animate-in">
         <div className="flex items-center justify-between gap-2 mb-6">
-          <button onClick={() => setSelectedCategory(null)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400"><ChevronLeft /></button>
+          <button onClick={() => { setSelectedCategory(null); setIsQuizMode(false); }} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400"><ChevronLeft /></button>
+          
           <div className="flex bg-zinc-900 p-1 rounded-2xl border border-zinc-800 flex-1 max-w-sm">
-            <button onClick={() => setActiveTab('vocab')} className={`flex-1 py-2 rounded-xl text-xs font-black ${activeTab === 'vocab' ? 'bg-zinc-800 text-blue-500' : 'text-zinc-500'}`}>TỪ VỰNG</button>
-            <button onClick={() => setActiveTab('sentences')} className={`flex-1 py-2 rounded-xl text-xs font-black ${activeTab === 'sentences' ? 'bg-zinc-800 text-green-500' : 'text-zinc-500'}`}>MẪU CÂU</button>
+            <button onClick={() => { setActiveTab('vocab'); setQuizAnswers({}); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'vocab' ? 'bg-zinc-800 text-blue-500' : 'text-zinc-500'}`}>TỪ VỰNG</button>
+            <button onClick={() => { setActiveTab('sentences'); setQuizAnswers({}); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'sentences' ? 'bg-zinc-800 text-green-500' : 'text-zinc-500'}`}>MẪU CÂU</button>
           </div>
+
           <div className="flex items-center gap-2">
-            <button onClick={() => setIsQuizMode(!isQuizMode)} className={`p-3 rounded-2xl border ${isQuizMode ? 'bg-orange-600 text-white' : 'bg-zinc-900 text-zinc-500'}`}><ShieldCheck /></button>
+            <button onClick={() => { setIsQuizMode(!isQuizMode); setQuizAnswers({}); }} className={`p-3 rounded-2xl border transition-all ${isQuizMode ? 'bg-orange-600 text-white' : 'bg-zinc-900 text-zinc-500'}`} title="Chế độ ôn tập">
+              <ShieldCheck />
+            </button>
             <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white"><Plus /></button>
           </div>
         </div>
 
-        <div className={activeTab === 'vocab' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
-          {activeTab === 'vocab' ? filteredWords.map(item => (
-            <div key={item.id} className="bg-zinc-900 p-4 rounded-3xl border border-zinc-800 flex gap-4">
-               <div className="w-20 h-20 rounded-xl bg-zinc-800 overflow-hidden flex-none">
-                  {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-700"><ImageIcon /></div>}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-blue-400 font-black">{item.type}</span>
-                    <button onClick={() => speak(item.word)} className="text-blue-500"><Volume2 /></button>
+        <div className={activeTab === 'vocab' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20" : "grid grid-cols-1 md:grid-cols-2 gap-4 pb-20"}>
+          {activeTab === 'vocab' ? (
+            filteredWords.map(item => {
+              const status = checkAnswer(item.id, item.word);
+              return (
+                <div key={item.id} className={`bg-zinc-900 p-4 rounded-3xl border transition-all flex gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                  <div className="w-20 h-20 rounded-xl bg-zinc-800 overflow-hidden flex-none">
+                    {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-700"><ImageIcon /></div>}
                   </div>
-                  <h3 className="text-lg font-bold text-white">{item.word}</h3>
-                  <p className="text-zinc-500 text-sm">{item.meaning}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] text-blue-400 font-black uppercase">{item.type}</span>
+                      <button onClick={() => speak(item.word)} className="text-blue-500 p-1 hover:bg-zinc-800 rounded-full"><Volume2 /></button>
+                    </div>
+                    {isQuizMode ? (
+                      <input 
+                        className={`w-full bg-black border rounded-lg px-2 py-1.5 text-sm font-bold outline-none ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white focus:border-blue-500'}`}
+                        placeholder="Gõ từ tiếng Anh..."
+                        value={quizAnswers[item.id] || ''}
+                        onChange={(e) => setQuizAnswers({...quizAnswers, [item.id]: e.target.value})}
+                      />
+                    ) : (
+                      <h3 className="text-lg font-bold text-white truncate">{item.word}</h3>
+                    )}
+                    <p className="text-zinc-500 text-sm mt-1">{item.meaning}</p>
+                  </div>
                 </div>
-            </div>
-          )) : filteredSentences.map(item => (
-            <div key={item.id} className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex justify-between items-center gap-4">
-              <div className="flex-1">
-                <p className="text-white font-bold">{item.english}</p>
-                <p className="text-zinc-500 text-xs italic">{item.vietnamese}</p>
-              </div>
-              <button onClick={() => speak(item.english)} className="text-green-500"><Volume2 /></button>
-            </div>
-          ))}
+              )
+            })
+          ) : (
+            filteredSentences.map(item => {
+              const status = checkAnswer(item.id, item.english);
+              return (
+                <div key={item.id} className={`bg-zinc-900 p-5 rounded-2xl border transition-all flex justify-between items-center gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                  <div className="flex-1">
+                    {isQuizMode ? (
+                      <div className="space-y-2">
+                        <p className="text-zinc-400 text-xs italic">"{item.vietnamese}"</p>
+                        <textarea 
+                          rows="1" 
+                          className={`w-full bg-black border rounded-xl p-2 text-sm font-bold outline-none resize-none ${status === 'correct' ? 'border-green-500 text-green-400' : status === 'incorrect' ? 'border-red-500 text-red-400' : 'border-zinc-700 text-white'}`}
+                          placeholder="Dịch sang tiếng Anh..."
+                          value={quizAnswers[item.id] || ''}
+                          onChange={(e) => setQuizAnswers({...quizAnswers, [item.id]: e.target.value})}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-white font-bold leading-tight">{item.english}</p>
+                        <p className="text-zinc-500 text-xs italic mt-1">{item.vietnamese}</p>
+                      </>
+                    )}
+                  </div>
+                  <button onClick={() => speak(item.english)} className={`p-2 rounded-xl ${status === 'correct' ? 'bg-green-500 text-white' : 'text-green-500'}`}><Volume2 /></button>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     );
