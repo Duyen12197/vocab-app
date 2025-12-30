@@ -28,6 +28,9 @@ function App() {
   const [detailSearchQuery, setDetailSearchQuery] = useState('');
   const [detailSearchVisible, setDetailSearchVisible] = useState(false);
   
+  // --- FIX LỖI TẠI ĐÂY: Thêm setShowScrollTop vào mảng ---
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  
   // Trạng thái học tập (Quiz)
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({});
@@ -37,6 +40,21 @@ function App() {
     localStorage.setItem('words', JSON.stringify(words));
     localStorage.setItem('sentences', JSON.stringify(sentences));
   }, [words, sentences]);
+
+  // --- THEO DÕI SỰ KIỆN CUỘN TRANG ---
+  useEffect(() => {
+    const handleScroll = () => {
+      // Hiện nút khi người dùng cuộn xuống quá 400px
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Hàm cuộn lên đầu trang mượt mà
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // --- LOGIC XỬ LÝ DỮ LIỆU ---
   const handleAddItem = (e) => {
@@ -114,50 +132,25 @@ function App() {
             <form onSubmit={handleAddItem} className="space-y-6">
               {activeTab === 'vocab' ? (
                 <>
-                  {/* Nhập từ vựng */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Từ vựng (English)</label>
-                    <input 
-                      required 
-                      autoFocus
-                      placeholder="Gõ từ tiếng Anh..." 
-                      className="w-full bg-black border border-zinc-800 rounded-2xl p-4 outline-none focus:border-blue-500 transition-all text-white font-medium" 
-                      value={newItem.word} 
-                      onChange={e=>setNewItem({...newItem, word: e.target.value})} 
-                    />
+                    <input required autoFocus placeholder="Gõ từ tiếng Anh..." className="w-full bg-black border border-zinc-800 rounded-2xl p-4 outline-none focus:border-blue-500 transition-all text-white font-medium" value={newItem.word} onChange={e=>setNewItem({...newItem, word: e.target.value})} />
                   </div>
 
-                  {/* Bộ chọn loại từ hiện sẵn 4 nút (Thay thế select) */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Loại từ (Word Type)</label>
                     <div className="grid grid-cols-4 gap-2 bg-black border border-zinc-800 p-1.5 rounded-2xl">
                       {['Noun', 'Verb', 'Adj', 'Adv'].map((type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setNewItem({ ...newItem, type: type })}
-                          className={`py-3 rounded-xl text-[11px] font-black transition-all duration-200 ${
-                            newItem.type === type
-                              ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 scale-[1.02]'
-                              : 'text-zinc-500 hover:text-zinc-300'
-                          }`}
-                        >
+                        <button key={type} type="button" onClick={() => setNewItem({ ...newItem, type: type })} className={`py-3 rounded-xl text-[11px] font-black transition-all duration-200 ${newItem.type === type ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 scale-[1.02]' : 'text-zinc-500 hover:text-zinc-300'}`}>
                           {type}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Nhập nghĩa */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Nghĩa tiếng Việt</label>
-                    <input 
-                      required 
-                      placeholder="Nghĩa của từ..." 
-                      className="w-full bg-black border border-zinc-800 rounded-2xl p-4 outline-none focus:border-blue-500 transition-all text-white font-medium" 
-                      value={newItem.meaning} 
-                      onChange={e=>setNewItem({...newItem, meaning: e.target.value})} 
-                    />
+                    <input required placeholder="Nghĩa của từ..." className="w-full bg-black border border-zinc-800 rounded-2xl p-4 outline-none focus:border-blue-500 transition-all text-white font-medium" value={newItem.meaning} onChange={e=>setNewItem({...newItem, meaning: e.target.value})} />
                   </div>
                 </>
               ) : (
@@ -180,7 +173,19 @@ function App() {
           </div>
         </div>
       )}
-    </div>
+
+{/* NÚT QUAY LẠI ĐẦU TRANG - DÙNG CHUNG CHO TOÀN APP */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-2 z-[100] p-2.5 bg-zinc-900/80 backdrop-blur-md border border-zinc-800 rounded-xl text-zinc-500 hover:text-white shadow-2xl active:scale-90 transition-all animate-in fade-in zoom-in duration-300"
+          title="Quay lại đầu trang"
+        >
+          {/* Kích thước 18px giúp nút nhỏ gọn và sát mép hơn */}
+          <window.LearningLogic.Icons.ArrowUp size={18} />
+        </button>
+      )}
+    </div> // Thẻ đóng của div App chính
   );
 }
 
