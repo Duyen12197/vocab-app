@@ -15,16 +15,16 @@ const CameraIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="n
 
 // --- 2. DATA ---
 const CATEGORIES = [
-  { id: '1', title: 'Giao tiếp cơ bản', count: 5, icon: '💬', color: 'bg-blue-500' },
-  { id: '2', title: 'Công nghệ & AI', count: 5, icon: '💻', color: 'bg-zinc-600' },
-  { id: '3', title: 'Du lịch & Khám phá', count: 5, icon: '🌍', color: 'bg-green-500' },
-  { id: '4', title: 'Kinh doanh & Tài chính', count: 5, icon: '📈', color: 'bg-orange-500' },
-  { id: '5', title: 'Ẩm thực & Nhà hàng', count: 5, icon: '🍕', color: 'bg-red-500' },
-  { id: '6', title: 'Sức khỏe & Y tế', count: 5, icon: '🏥', color: 'bg-pink-500' },
-  { id: '7', title: 'Gia đình & Bạn bè', count: 5, icon: '👨‍👩‍👧', color: 'bg-indigo-500' },
-  { id: '8', title: 'Giáo dục & Trường học', count: 5, icon: '📚', color: 'bg-yellow-600' },
-  { id: '9', title: 'Nghề nghiệp & Việc làm', count: 5, icon: '💼', color: 'bg-amber-700' },
-  { id: '10', title: 'Thể thao & Giải trí', count: 5, icon: '⚽', color: 'bg-teal-500' },
+  { id: '1', title: 'Gia đình', count: 0, icon: './assets/gia-dinh.png', color: 'bg-indigo-500' },
+  { id: '2', title: 'Bản thân', count: 0, icon: './assets/ban-than.png', color: 'bg-blue-500' },
+  { id: '3', title: 'Số đếm & thời gian', count: 0, icon: './assets/so-dem-thoi-gian.png', color: 'bg-zinc-600' },
+  { id: '4', title: 'Màu sắc & hình dạng', count: 0, icon: './assets/mau-sac-hinh-dang.png', color: 'bg-orange-500' },
+  { id: '5', title: 'Đồ vật xung quanh', count: 0, icon: './assets/do-vat-xung-quanh.png', color: 'bg-amber-700' },
+  { id: '6', title: 'Nhà cửa', count: 0, icon: './assets/nha-cua.png', color: 'bg-yellow-600' },
+  { id: '7', title: 'Thức ăn & đồ uống', count: 0, icon: './assets/thuc-an-do-uong.png', color: 'bg-red-500' },
+  { id: '8', title: 'Mua sắm', count: 0, icon: './assets/mua-sam.png', color: 'bg-pink-500' },
+  { id: '9', title: 'Giao thông', count: 0, icon: './assets/giao-thong.png', color: 'bg-teal-500' },
+  { id: '10', title: 'Sức khỏe', count: 0, icon: './assets/suc-khoe.png', color: 'bg-green-500' },
 ];
 
 const WORD_TYPES = ['Noun', 'Verb', 'Adj', 'Adv'];
