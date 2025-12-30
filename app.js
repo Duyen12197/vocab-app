@@ -15,16 +15,17 @@ const CameraIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="n
 
 // --- 2. DATA ---
 const CATEGORIES = [
-  { id: '1', title: 'Gia đình', count: 0, icon: './assets/gia-dinh.png', color: 'bg-indigo-500' },
-  { id: '2', title: 'Bản thân', count: 0, icon: './assets/ban-than.png', color: 'bg-blue-500' },
-  { id: '3', title: 'Số đếm & thời gian', count: 0, icon: './assets/so-dem-thoi-gian.png', color: 'bg-zinc-600' },
-  { id: '4', title: 'Màu sắc & hình dạng', count: 0, icon: './assets/mau-sac-hinh-dang.png', color: 'bg-orange-500' },
-  { id: '5', title: 'Đồ vật xung quanh', count: 0, icon: './assets/do-vat-xung-quanh.png', color: 'bg-amber-700' },
-  { id: '6', title: 'Nhà cửa', count: 0, icon: './assets/nha-cua.png', color: 'bg-yellow-600' },
-  { id: '7', title: 'Thức ăn & đồ uống', count: 0, icon: './assets/thuc-an-do-uong.png', color: 'bg-red-500' },
-  { id: '8', title: 'Mua sắm', count: 0, icon: './assets/mua-sam.png', color: 'bg-pink-500' },
-  { id: '9', title: 'Giao thông', count: 0, icon: './assets/giao-thong.png', color: 'bg-teal-500' },
-  { id: '10', title: 'Sức khỏe', count: 0, icon: './assets/suc-khoe.png', color: 'bg-green-500' },
+ const CATEGORIES = [
+  { id: '1', title: 'Gia đình', subtitle: 'Family', icon: './assets/gia-dinh.png', color: 'bg-indigo-500' },
+  { id: '2', title: 'Bản thân', subtitle: 'Myself', icon: './assets/ban-than.png', color: 'bg-blue-500' },
+  { id: '3', title: 'Số đếm & thời gian', subtitle: 'Numbers & Time', icon: './assets/so-dem-thoi-gian.png', color: 'bg-zinc-600' },
+  { id: '4', title: 'Màu sắc & hình dạng', subtitle: 'Colors & Shapes', icon: './assets/mau-sac-hinh-dang.png', color: 'bg-orange-500' },
+  { id: '5', title: 'Đồ vật xung quanh', subtitle: 'Objects', icon: './assets/do-vat-xung-quanh.png', color: 'bg-amber-700' },
+  { id: '6', title: 'Nhà cửa', subtitle: 'House', icon: './assets/nha-cua.png', color: 'bg-yellow-600' },
+  { id: '7', title: 'Thức ăn & đồ uống', subtitle: 'Food & Drink', icon: './assets/thuc-an-do-uong.png', color: 'bg-red-500' },
+  { id: '8', title: 'Mua sắm', subtitle: 'Shopping', icon: './assets/mua-sam.png', color: 'bg-pink-500' },
+  { id: '9', title: 'Giao thông', subtitle: 'Transportation', icon: './assets/giao-thong.png', color: 'bg-teal-500' },
+  { id: '10', title: 'Sức khỏe', subtitle: 'Health', icon: './assets/suc-khoe.png', color: 'bg-green-500' },
 ];
 
 const WORD_TYPES = ['Noun', 'Verb', 'Adj', 'Adv'];
@@ -120,12 +121,24 @@ function App() {
     <span className="text-xl">{cat.icon}</span>
   )}
 </div>
-              <div className="flex-1 ml-4">
-                <h3 className="text-white font-bold">{cat.title}</h3>
-                <div className="flex gap-3 mt-1 text-zinc-500 text-[10px] font-black">
-                  <span className="flex items-center gap-1 uppercase"><TypeIcon /> {words.filter(w=>w.category===cat.id).length}</span>
-                  <span className="flex items-center gap-1 uppercase"><MessageSquare /> {sentences.filter(s=>s.category===cat.id).length}</span>
+              <div className="flex-1 ml-4 min-w-0">
+                {/* Hàng trên: Tiêu đề Tiếng Việt và Số lượng */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-white font-bold truncate pr-2">{cat.title}</h3>
+                  
+                  {/* Khu vực hiển thị số lượng từ và câu nằm bên phải */}
+                  <div className="flex gap-2 text-zinc-500 text-[10px] font-black shrink-0">
+                    <span className="flex items-center gap-1 uppercase">
+                      <TypeIcon /> {words.filter(w => w.category === cat.id).length}
+                    </span>
+                    <span className="flex items-center gap-1 uppercase">
+                      <MessageSquare /> {sentences.filter(s => s.category === cat.id).length}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Hàng dưới: Tiêu đề Tiếng Anh nhỏ, in nghiêng */}
+                <p className="text-zinc-500 text-xs font-medium italic mt-0.5">{cat.subtitle}</p>
               </div>
               <ChevronRight />
             </button>
