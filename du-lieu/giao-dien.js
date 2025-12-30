@@ -1,16 +1,10 @@
 const { Icons, speak, checkAnswer } = window.LearningLogic;
 
 window.AppComponents = {
-  // --- MÀN HÌNH TRANG CHỦ (DANH SÁCH CHỦ ĐỀ) ---
+// --- MÀN HÌNH TRANG CHỦ (DANH SÁCH CHỦ ĐỀ) ---
   Home: ({ 
-    categories, 
-    words, 
-    sentences, 
-    homeSearchQuery, 
-    setHomeSearchQuery, 
-    homeSearchVisible, 
-    setHomeSearchVisible, 
-    onSelectCategory 
+    categories, words, sentences, homeSearchQuery, setHomeSearchQuery, 
+    homeSearchVisible, setHomeSearchVisible, onSelectCategory 
   }) => {
     const q = homeSearchQuery.toLowerCase().trim();
     const filteredCats = categories.filter(c => 
@@ -19,17 +13,18 @@ window.AppComponents = {
 
     return (
       <div className="max-w-[1600px] mx-auto px-4 py-8 animate-in">
-        <header className="flex items-center justify-between mb-10">
+        {/* HEADER TRANG CHỦ: Đã chỉnh py-4 và h-[80px] để bằng màn hình Detail */}
+        <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md py-4 -mt-8 mb-8 flex items-center justify-between h-[80px]">
           <div>
-            <h1 className="text-3xl font-black italic tracking-tighter text-white uppercase">Learn English</h1>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Smart Education</p>
+            <h1 className="text-2xl font-black italic tracking-tighter text-white uppercase leading-none">Learn English</h1>
+            <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">Smart Education</p>
           </div>
           <div className="flex items-center gap-2">
             {homeSearchVisible && (
               <input 
                 autoFocus 
                 placeholder="Tìm chủ đề..." 
-                className="bg-zinc-900 border border-zinc-800 rounded-xl py-2 px-4 text-sm text-white outline-none w-40 focus:border-blue-500 transition-all" 
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl py-2 px-4 text-sm text-white outline-none w-48 focus:border-blue-500 transition-all" 
                 value={homeSearchQuery} 
                 onChange={e => setHomeSearchQuery(e.target.value)} 
               />
@@ -45,17 +40,9 @@ window.AppComponents = {
 
         <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4">
           {filteredCats.map(cat => (
-            <button 
-              key={cat.id} 
-              onClick={() => onSelectCategory(cat)} 
-              className="flex items-center p-4 bg-zinc-900/50 rounded-[28px] border border-zinc-800 hover:border-zinc-700 transition-all text-left group"
-            >
+            <button key={cat.id} onClick={() => onSelectCategory(cat)} className="flex items-center p-4 bg-zinc-900/50 rounded-[28px] border border-zinc-800 hover:border-zinc-700 transition-all text-left group">
               <div className="w-14 h-14 rounded-2xl overflow-hidden bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-700 shadow-xl">
-                <img 
-                  src={cat.icon} 
-                  className="w-full h-full object-cover" 
-                  onError={e => { e.target.style.display='none'; e.target.parentNode.innerHTML='📚'; }} 
-                />
+                <img src={cat.icon} className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; e.target.parentNode.innerHTML='📚'; }} />
               </div>
               <div className="flex-1 ml-4 min-w-0">
                 <h3 className="text-white font-bold truncate text-lg leading-tight">{cat.title}</h3>
@@ -107,7 +94,6 @@ window.AppComponents = {
 
     return (
       <div className="max-w-[1600px] mx-auto px-4 py-4 animate-in">
-
         {/* THANH ĐIỀU HƯỚNG - Đã thêm sticky để cố định */}
 <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md py-4 -mt-4 mb-6 flex items-center gap-2">
           <button 
