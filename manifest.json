@@ -1,14 +1,14 @@
 {
-  "short_name": "LearnEng",
+  "short_name": "EngViet",
   "name": "Learn English Pro",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3898/3898082.png",
+      "src": "https://aroundsketch.com/Apple-App-Icons/App-Icon/Apple/iTunesU/@PNG.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": ".",
+],
+  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#000000"
