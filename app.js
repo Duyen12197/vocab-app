@@ -102,7 +102,24 @@ function App() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCats.map((cat) => (
             <button key={cat.id} onClick={() => setSelectedCategory(cat)} className="flex items-center p-4 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition-all text-left">
-              <div className={`${cat.color} w-12 h-12 rounded-xl flex items-center justify-center text-xl`}>{cat.icon}</div>
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-800 flex items-center justify-center shadow-lg border border-zinc-800">
+  {/* Kiểm tra nếu icon là đường dẫn file (có dấu chấm hoặc gạch chéo) */}
+  {cat.icon.includes('.') || cat.icon.includes('/') ? (
+    <img 
+      src={cat.icon} 
+      className="w-full h-full object-cover" 
+      alt={cat.title}
+      // Xử lý lỗi nếu sai tên file hoặc thiếu ảnh trong thư mục assets
+      onError={(e) => {
+        e.target.style.display = 'none';
+        e.target.parentNode.innerHTML = '<span class="text-xl">📚</span>';
+      }}
+    />
+  ) : (
+    // Nếu vẫn để là Emoji thì hiển thị bình thường
+    <span className="text-xl">{cat.icon}</span>
+  )}
+</div>
               <div className="flex-1 ml-4">
                 <h3 className="text-white font-bold">{cat.title}</h3>
                 <div className="flex gap-3 mt-1 text-zinc-500 text-[10px] font-black">
