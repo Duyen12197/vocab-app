@@ -64,45 +64,38 @@ window.AppComponents = {
   },
 
 // --- MÀN HÌNH CHI TIẾT ---
-  Detail: (props) => {
-    const { 
-      selectedCategory, activeTab, setActiveTab, words, sentences, 
-      detailSearchQuery, setDetailSearchQuery, detailSearchVisible, setDetailSearchVisible,
-      isQuizMode, setIsQuizMode, setIsAddingItem, onEdit, 
-      isFlashcardMode, setIsFlashcardMode,
-      quizAnswers, setQuizAnswers, onBack 
-    } = props;
+Detail: (props) => {
+  const { 
+    selectedCategory, activeTab, setActiveTab, words, sentences, 
+    detailSearchQuery, setDetailSearchQuery, detailSearchVisible, setDetailSearchVisible,
+    isQuizMode, setIsQuizMode, setIsAddingItem, onEdit, 
+    isFlashcardMode, setIsFlashcardMode,
+    quizAnswers, setQuizAnswers, onBack 
+  } = props;
 
-    const q = (detailSearchQuery || "").toLowerCase().trim();
-    const filteredWords = words.filter(w => w.category === selectedCategory.id && (!q || w.word.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q)));
-    const filteredSentences = sentences.filter(s => s.category === selectedCategory.id && (!q || s.english.toLowerCase().includes(q) || s.vietnamese.toLowerCase().includes(q)));
+  const q = (detailSearchQuery || "").toLowerCase().trim();
+  const filteredWords = words.filter(w => w.category === selectedCategory.id && (!q || w.word.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q)));
+  const filteredSentences = sentences.filter(s => s.category === selectedCategory.id && (!q || s.english.toLowerCase().includes(q) || s.vietnamese.toLowerCase().includes(q)));
 
-// Tìm hàm checkAnswer bên trong Detail: (props) => { ... }
-const checkAnswer = (input, original) => {
-  if (!input) return 'pending';
-  
-  // Hàm làm sạch: bỏ dấu câu, viết hoa và khoảng trắng thừa
-  const clean = (str) => (str || '')
-    .toLowerCase()
-    .trim()
-    .replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-    .replace(/\s+/g, " ");
+  const checkAnswer = (input, original) => {
+    if (!input) return 'pending';
+    const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
+    return clean(input) === clean(original) ? 'correct' : 'incorrect';
+  };
 
-  return clean(input) === clean(original) ? 'correct' : 'incorrect';
-};
+  const speak = (text) => {
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US';
+    window.speechSynthesis.speak(msg);
+  };
 
-    const speak = (text) => {
-      window.speechSynthesis.cancel();
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'en-US';
-      window.speechSynthesis.speak(msg);
-    };
-
-    return (
-      // Thêm class detail-main-container để quản lý chiều ngang iPhone
-      <div className="max-w-[1600px] mx-auto px-1.5 py-4 animate-in detail-main-container">
-        {/* Header giữ nguyên logic cũ, chỉ thêm pt- cho Dynamic Island */}
-        <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md py-4 -mt-4 mb-6 flex items-center gap-2 pt-[env(safe-area-inset-top,16px)]">
+  return (
+    <div className="fixed inset-0 bg-black flex flex-col z-40 overflow-hidden">
+      
+      {/* HEADER: Cao 80px đồng bộ với Home */}
+      <div className="w-full bg-black/95 backdrop-blur-md z-50 flex-none border-b border-zinc-800/50">
+        <div className="max-w-[1600px] mx-auto px-4 flex items-center gap-2 h-[80px] pt-[env(safe-area-inset-top,0px)]">
           <button onClick={onBack} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white shrink-0">
             <Icons.ChevronLeft />
           </button>
@@ -111,16 +104,16 @@ const checkAnswer = (input, original) => {
             {detailSearchVisible ? (
               <div className="flex items-center w-full px-2">
                 <div className="text-zinc-500 mr-2 shrink-0"><Icons.SearchIcon size={18} /></div>
-                <input autoFocus placeholder="Tìm nhanh..." className="bg-transparent text-white text-sm font-bold outline-none w-full py-2" value={detailSearchQuery} onChange={e => setDetailSearchQuery(e.target.value)} />
+                <input autoFocus placeholder="Tìm nhanh..." className="bg-transparent text-white text-sm font-bold outline-none w-full" value={detailSearchQuery} onChange={e => setDetailSearchQuery(e.target.value)} />
                 <button onClick={() => { setDetailSearchVisible(false); setDetailSearchQuery(''); }} className="text-zinc-500 shrink-0"><Icons.X /></button>
               </div>
             ) : (
               <div className="flex w-full gap-1">
-                <button onClick={() => setActiveTab('vocab')} className={`flex-1 flex items-center justify-center py-2.5 rounded-xl transition-all ${activeTab === 'vocab' ? 'bg-zinc-800 text-blue-500 shadow-inner' : 'text-zinc-600'}`}>
-                  <Icons.TypeIcon size={20} strokeWidth={2.5} />
+                <button onClick={() => setActiveTab('vocab')} className={`flex-1 flex items-center justify-center py-2 rounded-xl transition-all ${activeTab === 'vocab' ? 'bg-zinc-800 text-blue-500 shadow-inner' : 'text-zinc-600'}`}>
+                  <Icons.TypeIcon size={18} strokeWidth={2.5} />
                 </button>
-                <button onClick={() => setActiveTab('sentences')} className={`flex-1 flex items-center justify-center py-2.5 rounded-xl transition-all ${activeTab === 'sentences' ? 'bg-zinc-800 text-green-500 shadow-inner' : 'text-zinc-600'}`}>
-                  <Icons.MessageSquare size={20} strokeWidth={2.5} />
+                <button onClick={() => setActiveTab('sentences')} className={`flex-1 flex items-center justify-center py-2 rounded-xl transition-all ${activeTab === 'sentences' ? 'bg-zinc-800 text-green-500 shadow-inner' : 'text-zinc-600'}`}>
+                  <Icons.MessageSquare size={18} strokeWidth={2.5} />
                 </button>
               </div>
             )}
@@ -128,85 +121,84 @@ const checkAnswer = (input, original) => {
 
           <div className="flex items-center gap-1.5 shrink-0">
             {!detailSearchVisible && (
-              <button onClick={() => setDetailSearchVisible(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white shrink-0">
-                <Icons.SearchIcon size={20} />
-              </button>
+              <button onClick={() => setDetailSearchVisible(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 shrink-0"><Icons.SearchIcon size={20} /></button>
             )}
-            <button onClick={() => setIsFlashcardMode(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-yellow-500 hover:bg-yellow-500/10 transition-all shrink-0">
-              <Icons.Layers size={20} />
-            </button>
-            <button onClick={() => setIsQuizMode(!isQuizMode)} className={`p-3 rounded-2xl border transition-all shrink-0 ${isQuizMode ? 'bg-orange-600 border-orange-600 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}>
-              <Icons.ShieldCheck size={20} />
-            </button>
-            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white active:scale-90 transition-transform shrink-0 shadow-lg shadow-blue-900/20">
-              <Icons.Plus size={20} />
-            </button>
+            <button onClick={() => setIsFlashcardMode(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-yellow-500 shrink-0"><Icons.Layers size={20} /></button>
+            <button onClick={() => setIsQuizMode(!isQuizMode)} className={`p-3 rounded-2xl border transition-all shrink-0 ${isQuizMode ? 'bg-orange-600 border-orange-600 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}><Icons.ShieldCheck size={20} /></button>
+            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white shrink-0 shadow-lg shadow-blue-900/20 active:scale-95 transition-transform"><Icons.Plus size={20} /></button>
           </div>
         </div>
+      </div>
 
-        {/* Thêm class responsive-grid để ép 1 cột trên iPhone */}
-        <div className={`grid gap-2 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(320x,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(320px,1fr))]'}`}>
-          {activeTab === 'vocab' ? filteredWords.map(item => {
-            const status = checkAnswer(quizAnswers[item.id], item.word);
-            return (
-              <div key={item.id} className={`bg-zinc-900/50 p-4 rounded-[28px] border transition-all flex gap-4 items-center h-[120px] ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
-                <div className="w-20 h-20 rounded-2xl bg-zinc-800 overflow-hidden shrink-0 border border-zinc-800">
-                  {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-700"><Icons.ImageIcon /></div>}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                   <span className="text-[10px] text-blue-500 font-black uppercase mb-0.5">{item.type}</span>
-                   {isQuizMode ? (
-                     <input className={`w-full bg-black border rounded-xl px-3 py-1.5 text-sm font-bold outline-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} placeholder="Gõ từ..." value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
-                   ) : (
-                     <h3 className="text-white font-bold text-lg truncate">{item.word}</h3>
-                   )}
-                   <div className="flex items-center justify-between mt-1">
-                      <p className="text-zinc-500 text-sm truncate pr-2">{item.meaning}</p>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => onEdit(item)} className="text-zinc-600 hover:text-yellow-500 p-1 shrink-0"><Icons.Edit size={16} /></button>
-                        <button onClick={() => window.LearningLogic.copyToClipboard(item.word)} className="text-zinc-600 hover:text-blue-500 p-1 shrink-0"><Icons.Copy size={16} /></button>
-                        <button onClick={() => speak(item.word)} className="text-zinc-500 hover:text-white p-1 shrink-0"><Icons.Volume2 size={18} /></button>
+      {/* NỘI DUNG CUỘN */}
+      <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth bg-black">
+        <div className="max-w-[1600px] mx-auto px-4 py-6">
+          <div className={`grid gap-4 pb-24 ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(340px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(340px,1fr))]'}`}>
+            {activeTab === 'vocab' ? filteredWords.map(item => {
+              const status = checkAnswer(quizAnswers[item.id], item.word);
+              return (
+                <div key={item.id} className={`bg-zinc-900/50 p-4 rounded-[28px] border transition-all flex gap-4 items-center min-h-[120px] ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                  <div className="w-16 h-16 rounded-2xl bg-zinc-800 overflow-hidden shrink-0 border border-zinc-700">
+                    {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-700">📚</div>}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <span className="text-[10px] text-blue-500 font-black uppercase mb-0.5">{item.type}</span>
+                    {isQuizMode ? (
+                      <input className={`w-full bg-black border rounded-xl px-3 py-1.5 text-sm font-bold outline-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
+                    ) : (
+                      <h3 className="text-white font-bold text-lg truncate leading-tight">{item.word}</h3>
+                    )}
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-zinc-500 text-sm truncate pr-2 italic">{item.meaning}</p>
+                      
+                      {/* NHÓM NÚT ACTION (ĐÃ THÊM COPY) */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button onClick={() => onEdit(item)} className="text-zinc-600 p-1.5 hover:text-yellow-500"><Icons.Edit size={16} /></button>
+                        <button onClick={() => window.LearningLogic.copyToClipboard(item.word)} className="text-zinc-600 p-1.5 hover:text-blue-500"><Icons.Copy size={16} /></button>
+                        <button onClick={() => speak(item.word)} className="text-zinc-500 p-1.5 hover:text-white"><Icons.Volume2 size={18} /></button>
                       </div>
-                   </div>
-                </div>
-              </div>
-            );
-          }) : filteredSentences.map(item => {
-            const status = checkAnswer(quizAnswers[item.id], item.english);
-            return (
-              <div key={item.id} className={`bg-zinc-900/50 p-4 rounded-[28px] border transition-all flex items-center h-[110px] gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  {isQuizMode ? (
-                    <textarea rows="1" className={`w-full bg-black border rounded-xl p-2.5 text-sm font-bold outline-none resize-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} placeholder="Dịch câu..." value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
-                  ) : (
-                    <p className="text-white font-bold text-lg break-words whitespace-normal">{item.english}</p>
-                  )}
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-zinc-500 text-sm italic truncate pr-2">{item.vietnamese}</p>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => onEdit(item)} className="text-zinc-600 hover:text-yellow-500 p-1 shrink-0"><Icons.Edit size={16} /></button>
-                      <button onClick={() => window.LearningLogic.copyToClipboard(item.english)} className="text-zinc-600 hover:text-blue-500 p-1 shrink-0"><Icons.Copy size={16} /></button>
-                      <button onClick={() => speak(item.english)} className="text-zinc-500 hover:text-white p-1 shrink-0"><Icons.Volume2 size={18} /></button>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            }) : filteredSentences.map(item => {
+              const status = checkAnswer(quizAnswers[item.id], item.english);
+              return (
+                <div key={item.id} className={`bg-zinc-900/50 p-5 rounded-[28px] border transition-all flex items-center min-h-[110px] gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                  <div className="flex-1 min-w-0">
+                    {isQuizMode ? (
+                      <textarea rows="1" className={`w-full bg-black border rounded-xl p-2.5 text-sm font-bold outline-none resize-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
+                    ) : (
+                      <p className="text-white font-bold text-lg leading-snug">{item.english}</p>
+                    )}
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-zinc-500 text-sm italic truncate">{item.vietnamese}</p>
+                      
+                      {/* NHÓM NÚT ACTION (ĐÃ THÊM COPY) */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button onClick={() => onEdit(item)} className="text-zinc-600 p-1.5 hover:text-yellow-500"><Icons.Edit size={16} /></button>
+                        <button onClick={() => window.LearningLogic.copyToClipboard(item.english)} className="text-zinc-600 p-1.5 hover:text-blue-500"><Icons.Copy size={16} /></button>
+                        <button onClick={() => speak(item.english)} className="text-zinc-500 p-1.5 hover:text-white"><Icons.Volume2 size={18} /></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        
-
-        <FlashcardModal 
-          isOpen={isFlashcardMode} 
-          onClose={() => setIsFlashcardMode(false)} 
-          items={activeTab === 'vocab' ? filteredWords : filteredSentences}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
       </div>
       
-    );
-  }
+      <FlashcardModal 
+        isOpen={isFlashcardMode} 
+        onClose={() => setIsFlashcardMode(false)} 
+        items={activeTab === 'vocab' ? filteredWords : filteredSentences}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+    </div>
+  );
+}
 }
 
 
