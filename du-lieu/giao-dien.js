@@ -213,7 +213,6 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
   const englishText = currentItem?.word || currentItem?.english || "";
   const vietnameseText = currentItem?.meaning || currentItem?.vietnamese || "";
 
-  // --- HÀM PHÁT ÂM ---
   const speak = (text) => {
     if (!text || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -223,11 +222,9 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
     window.speechSynthesis.speak(msg);
   };
 
-  // --- KIỂM TRA BẰNG CHỮ VIẾT ---
   const handleCheckText = (e) => {
     if (e) e.preventDefault();
     const isCorrect = userInput.toLowerCase().trim() === englishText.toLowerCase().trim();
-    
     if (isCorrect) {
       setCheckStatus('correct');
       setScore(p => ({ ...p, correct: p.correct + 1 }));
@@ -239,7 +236,6 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
     }
   };
 
-  // --- KIỂM TRA BẰNG GIỌNG NÓI ---
   const handleVoiceTest = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -307,20 +303,24 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
   if (!isOpen || !currentItem) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/98 z-[1000] flex flex-col items-center p-6 backdrop-blur-3xl overflow-y-auto">
+    <div className="fixed inset-0 bg-black z-[1000] flex flex-col iphone-optimized-modal backdrop-blur-3xl overflow-hidden">
       
-      {/* HEADER */}
-      <div className="w-full max-w-md flex justify-between items-center mb-6">
-        <div className="text-zinc-500 font-bold text-xs uppercase tracking-widest">{currentIndex + 1} / {items.length}</div>
-        <div className="flex gap-2">
+      {/* HEADER: Tối ưu khoảng cách cho Dynamic Island */}
+      <div className="w-full px-6 flex justify-between items-center h-16 shrink-0">
+        <div className="text-zinc-500 font-bold text-xs uppercase tracking-widest">
+          {currentIndex + 1} / {items.length}
+        </div>
+        <div className="flex gap-3">
           <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-500 text-xs font-bold">✓ {score.correct}</div>
           <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 text-xs font-bold">✕ {score.incorrect}</div>
         </div>
-        <button onClick={onClose} className="p-2 bg-zinc-800 rounded-full text-white"><Icons.X size={18}/></button>
+        <button onClick={onClose} className="p-2 bg-zinc-800 rounded-full text-white active:scale-90">
+          <Icons.X size={18}/>
+        </button>
       </div>
 
-      {/* MODE SELECTOR */}
-      <div className="flex bg-zinc-900 border border-zinc-800 p-1 rounded-2xl mb-8">
+      {/* MODE SELECTOR: Giữ nguyên các chế độ cũ */}
+      <div className="flex bg-zinc-900 border border-zinc-800 p-1 rounded-2xl mx-6 mb-4 shrink-0 overflow-x-auto no-scrollbar">
         {[
           { id: 'learn', icon: <Icons.Layers size={18}/> },
           { id: 'listen', icon: <Icons.Volume2 size={18}/> },
@@ -331,25 +331,25 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
           <button 
             key={mode.id}
             onClick={() => setStudyMode(mode.id)}
-            className={`p-3 rounded-xl transition-all ${studyMode === mode.id ? 'bg-zinc-800 text-white' : 'text-zinc-600'}`}
+            className={`flex-1 flex justify-center py-3 rounded-xl transition-all ${studyMode === mode.id ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-600'}`}
           >
             {mode.icon}
           </button>
         ))}
       </div>
 
-      {/* CARD */}
-      <div className="relative w-full max-w-sm aspect-[4/5] mb-8" style={{ perspective: '1000px' }}>
+      {/* CARD: Tối ưu tỉ lệ hiển thị cho màn hình dài (Flex-grow) */}
+      <div className="flex-1 flex items-center justify-center px-6 perspective-1000">
         <div 
-          className="relative w-full h-full transition-all duration-500"
+          className="relative w-full aspect-[3/4] max-h-[450px] transition-all duration-500 shadow-2xl"
           style={{ transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+          onClick={() => setIsFlipped(!isFlipped)}
         >
           {/* FRONT */}
-          <div className="absolute inset-0 bg-zinc-900 border border-zinc-800 rounded-[40px] flex flex-col items-center justify-center p-8 backface-hidden shadow-2xl">
-            {/* Nút phát âm luôn có mặt trên thẻ */}
+          <div className="absolute inset-0 bg-zinc-900 border border-zinc-800 rounded-[40px] flex flex-col items-center justify-center p-8 backface-hidden">
             <button 
               onClick={(e) => { e.stopPropagation(); speak(englishText); }}
-              className="absolute top-6 right-6 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-full text-blue-400 transition-colors"
+              className="absolute top-6 right-6 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-full text-blue-400"
             >
               <Icons.Volume2 size={24} />
             </button>
@@ -357,50 +357,51 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
             {studyMode === 'voice_test' ? (
               <div className="flex flex-col items-center text-center gap-6">
                  <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl animate-pulse" style={{ transform: `scale(${1 + audioLevel/50})` }} />
-                    <div className="text-5xl font-black text-white mb-2">{englishText}</div>
+                    <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl animate-pulse" 
+                         style={{ transform: `scale(${1 + audioLevel/50})`, transition: 'transform 0.1s' }} />
+                    <div className="text-4xl font-black text-white mb-2 leading-tight">{englishText}</div>
                  </div>
-                 <div className="text-xl text-zinc-500 font-medium italic">{vietnameseText}</div>
-                 <div className={`mt-4 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${isListening ? 'bg-red-500 text-white' : 'bg-zinc-800 text-zinc-400'}`}>
+                 <div className="text-lg text-zinc-500 font-medium italic">{vietnameseText}</div>
+                 <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${isListening ? 'bg-red-500 text-white animate-bounce' : 'bg-zinc-800 text-zinc-400'}`}>
                     {isListening ? "Hãy đọc ngay..." : "Sẵn sàng thu âm"}
                  </div>
               </div>
             ) : (
               <div className="text-center">
-                {studyMode === 'learn' && <div className="text-5xl font-black text-white">{englishText}</div>}
+                {studyMode === 'learn' && <div className="text-5xl font-black text-white leading-tight">{englishText}</div>}
                 {studyMode === 'listen' && <Icons.Volume2 size={80} className="text-blue-500 animate-bounce" />}
-                {studyMode === 'meaning' && <div className="text-4xl font-bold text-green-500">{vietnameseText}</div>}
-                {studyMode === 'image' && (currentItem.image ? <img src={currentItem.image} className="w-48 h-48 object-cover rounded-2xl" /> : <Icons.ImageIcon size={80} className="text-zinc-800" />)}
+                {studyMode === 'meaning' && <div className="text-4xl font-bold text-green-500 leading-tight">{vietnameseText}</div>}
+                {studyMode === 'image' && (currentItem.image ? <img src={currentItem.image} className="w-56 h-56 object-cover rounded-3xl" /> : <Icons.ImageIcon size={80} className="text-zinc-800" />)}
               </div>
             )}
             
-            <button onClick={(e) => {e.stopPropagation(); setIsFlipped(true)}} className="absolute bottom-8 text-zinc-600 text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">Bấm để xem đáp án</button>
+            <p className="absolute bottom-8 text-zinc-600 text-[10px] font-bold uppercase tracking-widest">Bấm thẻ để xem đáp án</p>
           </div>
 
           {/* BACK */}
           <div className="absolute inset-0 bg-blue-600 rounded-[40px] flex flex-col items-center justify-center p-8 backface-hidden shadow-2xl" style={{ transform: 'rotateY(180deg)' }}>
-            <div className="text-white/60 text-sm font-bold uppercase mb-2">Meaning</div>
-            <div className="text-4xl font-black text-white text-center mb-6">{vietnameseText}</div>
-            <div className="h-px w-12 bg-white/20 mb-6" />
+            <div className="text-white/60 text-xs font-bold uppercase mb-2">Ý nghĩa</div>
+            <div className="text-4xl font-black text-white text-center mb-6 leading-tight">{vietnameseText}</div>
+            <div className="h-1 w-12 bg-white/20 rounded-full mb-6" />
             <div className="text-2xl font-bold text-white/90">{englishText}</div>
-            <button onClick={(e) => {e.stopPropagation(); setIsFlipped(false)}} className="absolute bottom-8 text-white/50 text-[10px] font-bold uppercase tracking-widest">Quay lại</button>
+            <p className="absolute bottom-8 text-white/50 text-[10px] font-bold uppercase tracking-widest">Chạm để quay lại</p>
           </div>
         </div>
       </div>
 
-      {/* INPUT & CONTROL AREA */}
-      <div className="w-full max-w-sm">
+      {/* INPUT & CONTROL: Đưa vào Thumb-zone (Sát đáy cho ngón cái) */}
+      <div className="w-full px-6 pt-4 pb-8 thumb-zone shrink-0 bg-black/50">
         {studyMode === 'voice_test' ? (
-          <div className="flex flex-col items-center gap-6">
-             <div className={`w-full p-5 rounded-3xl border-2 text-center text-xl font-bold transition-all ${
+          <div className="flex flex-col items-center gap-4">
+             <div className={`w-full p-4 rounded-3xl border-2 text-center text-lg font-bold transition-all min-h-[64px] flex items-center justify-center ${
                 checkStatus === 'correct' ? 'border-green-500 bg-green-500/10 text-green-500' :
-                checkStatus === 'incorrect' ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-zinc-800 text-zinc-400 bg-zinc-900'
+                checkStatus === 'incorrect' ? 'border-red-500 bg-red-500/10 text-red-500 animate-shake' : 'border-zinc-800 text-zinc-500 bg-zinc-900/50'
              }`}>
-                {userInput || "Kết quả đọc sẽ hiện ở đây..."}
+                {userInput || "Kết quả sẽ hiện ở đây..."}
              </div>
              <button 
-                onClick={handleVoiceTest}
-                className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 scale-110 shadow-lg shadow-red-500/40' : 'bg-white text-black hover:scale-105'}`}
+                onClick={(e) => { e.stopPropagation(); handleVoiceTest(); }}
+                className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-2xl ${isListening ? 'bg-red-500 scale-110' : 'bg-white text-black active:scale-95'}`}
              >
                 <Icons.Mic size={32} />
              </button>
@@ -408,7 +409,9 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
         ) : studyMode !== 'learn' ? (
           <form onSubmit={handleCheckText} className="relative group">
             <input 
-              className={`w-full bg-zinc-900 border-2 rounded-3xl p-6 text-center text-2xl font-bold transition-all outline-none ${
+              autoCapitalize="none"
+              autoComplete="off"
+              className={`w-full bg-zinc-900 border-2 rounded-[28px] p-5 text-center text-xl font-bold transition-all outline-none shadow-xl ${
                 checkStatus === 'correct' ? 'border-green-500 text-green-500' :
                 checkStatus === 'incorrect' ? 'border-red-500 text-red-500 animate-shake' : 'border-zinc-800 text-white focus:border-blue-500'
               }`}
@@ -416,12 +419,18 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
               value={userInput}
               onChange={(e) => {setUserInput(e.target.value); setCheckStatus('pending');}}
             />
-            <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-zinc-500 hover:text-white"><Icons.ChevronRight /></button>
+            <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-blue-600 rounded-full text-white shadow-lg active:scale-90">
+              <Icons.ChevronRight />
+            </button>
           </form>
         ) : (
-          <div className="flex justify-center gap-4">
-            <button onClick={() => setCurrentIndex(p => Math.max(0, p-1))} className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-white hover:bg-zinc-800"><Icons.ChevronLeft size={24}/></button>
-            <button onClick={() => setCurrentIndex(p => Math.min(items.length-1, p+1))} className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-white hover:bg-zinc-800"><Icons.ChevronRight size={24}/></button>
+          <div className="flex justify-between gap-4">
+            <button onClick={() => setCurrentIndex(p => Math.max(0, p-1))} className="flex-1 py-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-white flex justify-center active:bg-zinc-800 active:scale-95 transition-all">
+              <Icons.ChevronLeft size={24}/>
+            </button>
+            <button onClick={() => setCurrentIndex(p => Math.min(items.length-1, p+1))} className="flex-1 py-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-white flex justify-center active:bg-zinc-800 active:scale-95 transition-all">
+              <Icons.ChevronRight size={24}/>
+            </button>
           </div>
         )}
       </div>
