@@ -1,15 +1,31 @@
 window.LearningLogic = {
   // Logic phát âm
-  speak: (text) => {
-    window.speechSynthesis.cancel();
-    const utterance = new window.SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Samantha')) || voices.find(v => v.lang.startsWith('en'));
-    if (voice) utterance.voice = voice;
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9;
-    window.speechSynthesis.speak(utterance);
-  },
+speak: (text) => {
+  window.speechSynthesis.cancel();
+  const utterance = new window.SpeechSynthesisUtterance(text);
+  
+  // Lấy tất cả giọng nói có sẵn
+  const voices = window.speechSynthesis.getVoices();
+  
+  // 1. Tìm giọng Nam Mỹ (ưu tiên các tên giọng nam phổ biến)
+  const usMaleVoice = voices.find(v => 
+    v.lang === 'en-US' && 
+    (v.name.includes('David') || v.name.includes('Guy') || v.name.includes('Male'))
+  );
+
+  // 2. Nếu không có giọng Nam Mỹ cụ thể, tìm bất cứ giọng en-US nào
+  const usVoice = voices.find(v => v.lang === 'en-US');
+
+  // 3. Cuối cùng mới lấy giọng tiếng Anh bất kỳ
+  const anyEnVoice = voices.find(v => v.lang.startsWith('en'));
+
+  utterance.voice = usMaleVoice || usVoice || anyEnVoice;
+  utterance.lang = 'en-US';
+  utterance.rate = 0.9; // Tốc độ hơi chậm một chút để dễ nghe
+  utterance.pitch = 1;  // Cao độ (1 là bình thường)
+  
+  window.speechSynthesis.speak(utterance);
+}
 
   // Logic Copy vào bộ nhớ tạm
   copyToClipboard: (text) => {
