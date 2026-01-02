@@ -25,7 +25,7 @@ speak: (text) => {
   utterance.pitch = 1;  // Cao độ (1 là bình thường)
   
   window.speechSynthesis.speak(utterance);
-}
+},
 
   // Logic Copy vào bộ nhớ tạm
   copyToClipboard: (text) => {
