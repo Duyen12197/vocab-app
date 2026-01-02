@@ -161,11 +161,37 @@ input, textarea {
     padding-bottom: env(safe-area-inset-bottom, 24px);
 }
 
-/* Ép grid luôn là 1 cột trên màn hình nhỏ dưới 400px (iPhone 15) */
+/* Fix lỗi lệch khung và tối ưu tràn mép cho màn hình nhỏ < 400px */
 @media (max-width: 400px) {
     .responsive-grid {
-        grid-template-columns: 1fr !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important; 
+        width: 100% !important;
+        /* GIẢM padding xuống mức tối thiểu (2px - 4px) để khung sát mép */
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        box-sizing: border-box;
+        gap: 8px !important; /* Thu hẹp khoảng cách giữa các card dọc */
+    }
+
+    .detail-main-container {
+        /* Ép container cha không được có padding dư thừa */
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .responsive-grid > div {
+        min-width: 0 !important; 
+        width: 100% !important;
+        /* Loại bỏ border-radius quá lớn nếu cần để cảm giác tràn viền hơn */
+        border-radius: 20px !important; 
+    }
+
+    /* Đảm bảo chữ xuống dòng và không đẩy khung */
+    .responsive-grid p, 
+    .responsive-grid h3 {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
 }
