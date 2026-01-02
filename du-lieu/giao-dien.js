@@ -136,7 +136,7 @@ window.AppComponents = {
         </div>
 
         {/* Thêm class responsive-grid để ép 1 cột trên iPhone */}
-        <div className={`grid gap-4 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(320px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(400px,1fr))]'}`}>
+        <div className={`grid gap-4 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]'}`}>
           {activeTab === 'vocab' ? filteredWords.map(item => {
             const status = checkAnswer(quizAnswers[item.id], item.word);
             return (
