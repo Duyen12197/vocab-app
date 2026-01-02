@@ -36,13 +36,27 @@ speak: (text) => {
     });
   },
 
-  // Logic kiểm tra đáp án
-  checkAnswer: (inputRaw, targetRaw) => {
-    const input = (inputRaw || '').trim().toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
-    const target = (targetRaw || '').trim().toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
-    if (!input) return 'neutral';
-    return input === target ? 'correct' : 'incorrect';
-  },
+// Logic kiểm tra đáp án: Bỏ qua viết hoa, dấu chấm, dấu phẩy...
+checkAnswer: (inputRaw, targetRaw) => {
+  const clean = (str) => {
+    return (str || '')
+      .toLowerCase()
+      .trim()
+      // 1. Xóa tất cả dấu câu (bao gồm dấu hỏi, chấm, phẩy...)
+      .replace(/[?.,/#!$%^&*;:{}=\-_`~()]/g, "")
+      // 2. Cực kỳ quan trọng: Biến nhiều khoảng trắng liên tiếp thành 1 khoảng trắng
+      // Ví dụ: "hello   world" -> "hello world"
+      .replace(/\s+/g, " ");
+  };
+
+  const input = clean(inputRaw);
+  const target = clean(targetRaw);
+
+  if (!input) return 'neutral';
+  
+  // So sánh chính xác sau khi đã "lọc sạch"
+  return input === target ? 'correct' : 'incorrect';
+},
 
   // Hàm cuộn lên đầu trang
   scrollToTop: () => {
