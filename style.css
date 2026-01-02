@@ -1,46 +1,92 @@
-/* style.css */
+/* style.css - Optimized for iPhone 15 & modern iOS Devices */
 :root {
     --ios-bg: #000000;
-    --ios-card: #18181b;
-    --ios-blue: #3b82f6;
-    --ios-green: #22c55e;
-    --ios-red: #ef4444;
-    --ios-orange: #f97316;
+    --ios-card: #1b1b1f; /* Làm sáng nhẹ để tách biệt với nền đen sâu của OLED */
+    --ios-blue: #007AFF; /* Chuẩn màu Blue iOS */
+    --ios-green: #34C759; /* Chuẩn màu Green iOS */
+    --ios-red: #FF3B30; /* Chuẩn màu Red iOS */
+    --ios-orange: #FF9500;
+    
+    /* Biến hỗ trợ iPhone 15 (Dynamic Island & Home Indicator) */
+    --safe-top: env(safe-area-inset-top, 47px); 
+    --safe-bottom: env(safe-area-inset-bottom, 34px);
+}
+
+/* 0. CẤU TRÌNH CƠ BẢN TỐI ƯU MOBILE */
+* {
+    -webkit-tap-highlight-color: transparent; /* Loại bỏ khung xanh khi chạm trên Safari */
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--ios-bg);
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Ngăn chặn cuộn nảy (bounce) gây khó chịu trên iOS */
+    overflow-x: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+#root {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Cuộn mượt cho iOS */
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
 }
 
 /* 1. HIỆU ỨNG CHUNG */
 .animate-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 2. CARD PHONG CÁCH iOS */
+/* 2. CARD PHONG CÁCH iOS - Tối ưu cho màn hình OLED */
 .ios-card {
     background: var(--ios-card);
-    border: 1px solid #27272a;
+    border: 0.5px solid rgba(255, 255, 255, 0.1); /* Viền mảnh chuẩn Apple */
     border-radius: 24px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px); /* Hiệu ứng kính mờ nếu có độ trong suốt */
 }
 
 .ios-card:active {
-    transform: scale(0.97);
+    transform: scale(0.96);
+    background: #252529;
 }
 
 /* 3. TRẠNG THÁI QUIZ */
 .quiz-correct {
     border-color: var(--ios-green) !important;
-    background: rgba(34, 197, 94, 0.08) !important;
+    background: rgba(52, 199, 89, 0.1) !important;
+    box-shadow: 0 0 15px rgba(52, 199, 89, 0.1);
 }
 .quiz-incorrect {
     border-color: var(--ios-red) !important;
-    background: rgba(239, 68, 68, 0.08) !important;
+    background: rgba(255, 59, 48, 0.1) !important;
+    box-shadow: 0 0 15px rgba(255, 59, 48, 0.1);
 }
 
-/* 4. FLASHCARD HIỆU ỨNG 3D (Cực kỳ quan trọng) */
+/* Hiệu ứng rung khi sai (iPhone Shake) */
+.animate-shake {
+    animation: iphoneShake 0.4s drag;
+}
+
+@keyframes iphoneShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+}
+
+/* 4. FLASHCARD HIỆU ỨNG 3D - Tối ưu cho màn hình dài iPhone 15 */
 .perspective-1000 {
     perspective: 1000px;
 }
@@ -48,37 +94,63 @@
 .backface-hidden {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    position: absolute; /* Đảm bảo 2 mặt nằm đè lên nhau */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
 
-/* Sửa lỗi trùng tên slideUp -> Đổi thành flashcardSlideUp */
 .animate-flashcard {
-    animation: flashcardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: flashcardSlideUp 0.6s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @keyframes flashcardSlideUp {
-    from { transform: translateY(50%); opacity: 0; }
+    from { transform: translateY(100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* 5. TÙY CHỈNH THANH CUỘN (SCROLLBAR) CHO HIỆN ĐẠI */
+/* 5. TÙY CHỈNH THANH CUỘN (Ẩn để giống App bản địa) */
 ::-webkit-scrollbar {
-    width: 4px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background: #27272a;
-    border-radius: 10px;
+    display: none;
 }
 
-/* 6. NÚT NHẤN */
+/* 6. NÚT NHẤN & ĐIỀU KHIỂN */
+button {
+    touch-action: manipulation; /* Tối ưu hóa tốc độ phản hồi cảm ứng */
+}
+
 button:active {
-    transform: scale(0.92);
+    transform: scale(0.9);
     transition: transform 0.1s ease;
+}
+
+/* 7. ĐẶC BIỆT: Tối ưu cho iPhone 15 (Màn hình hẹp ngang) */
+@media (max-width: 393px) { /* Chiều ngang iPhone 15 tiêu chuẩn */
+    .grid {
+        grid-template-columns: 1fr !important; /* Luôn ưu tiên 1 cột trên mobile */
+        gap: 12px !important;
+    }
+    
+    h1 { font-size: 1.5rem !important; }
+    
+    /* Làm Card Flashcard to hơn trên màn hình nhỏ */
+    .aspect-\[4\/5\] {
+        aspect-ratio: 3/4 !important; 
+        width: 95% !important;
+    }
+}
+
+/* 8. Fix lỗi Sticky trên iOS */
+.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Tối ưu vùng nhập liệu để bàn phím iPhone không che mất */
+input, textarea {
+    font-size: 16px !important; /* Ngăn iOS tự động Zoom khi focus vào input */
 }
