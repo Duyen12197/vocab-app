@@ -91,7 +91,7 @@ window.AppComponents = {
 
     return (
       // Thêm class detail-main-container để quản lý chiều ngang iPhone
-      <div className="max-w-[1600px] mx-auto px-4 py-4 animate-in detail-main-container">
+      <div className="max-w-[1600px] mx-auto px-1.5 py-4 animate-in detail-main-container">
         {/* Header giữ nguyên logic cũ, chỉ thêm pt- cho Dynamic Island */}
         <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md py-4 -mt-4 mb-6 flex items-center gap-2 pt-[env(safe-area-inset-top,16px)]">
           <button onClick={onBack} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white shrink-0">
@@ -136,7 +136,7 @@ window.AppComponents = {
         </div>
 
         {/* Thêm class responsive-grid để ép 1 cột trên iPhone */}
-        <div className={`grid gap-4 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]'}`}>
+        <div className={`grid gap-2 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]'}`}>
           {activeTab === 'vocab' ? filteredWords.map(item => {
             const status = checkAnswer(quizAnswers[item.id], item.word);
             return (
