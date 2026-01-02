@@ -136,7 +136,7 @@ window.AppComponents = {
         </div>
 
         {/* Thêm class responsive-grid để ép 1 cột trên iPhone */}
-        <div className={`grid gap-2 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(350px,1fr))]'}`}>
+        <div className={`grid gap-2 pb-24 responsive-grid ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(320x,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(320px,1fr))]'}`}>
           {activeTab === 'vocab' ? filteredWords.map(item => {
             const status = checkAnswer(quizAnswers[item.id], item.word);
             return (
@@ -165,12 +165,12 @@ window.AppComponents = {
           }) : filteredSentences.map(item => {
             const status = checkAnswer(quizAnswers[item.id], item.english);
             return (
-              <div key={item.id} className={`bg-zinc-900/50 p-4 rounded-[28px] border transition-all flex items-center h-[120px] gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+              <div key={item.id} className={`bg-zinc-900/50 p-4 rounded-[28px] border transition-all flex items-center h-[110px] gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   {isQuizMode ? (
                     <textarea rows="1" className={`w-full bg-black border rounded-xl p-2.5 text-sm font-bold outline-none resize-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} placeholder="Dịch câu..." value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
                   ) : (
-                    <p className="text-white font-bold text-lg truncate">{item.english}</p>
+                    <p className="text-white font-bold text-lg break-words whitespace-normal">{item.english}</p>
                   )}
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-zinc-500 text-sm italic truncate pr-2">{item.vietnamese}</p>
@@ -185,6 +185,7 @@ window.AppComponents = {
             );
           })}
         </div>
+        
 
         <FlashcardModal 
           isOpen={isFlashcardMode} 
@@ -194,6 +195,7 @@ window.AppComponents = {
           setActiveTab={setActiveTab}
         />
       </div>
+      
     );
   }
 }
@@ -287,7 +289,7 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
         const target = clean(englishText);
         
         setUserInput(resultRaw); // Vẫn hiển thị nguyên văn câu bạn vừa nói
-        
+
         if (result === englishText.toLowerCase().trim()) {
           setCheckStatus('correct');
           setScore(p => ({ ...p, correct: p.correct + 1 }));
