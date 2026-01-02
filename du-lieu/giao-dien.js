@@ -227,7 +227,11 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
 
   const handleCheckText = (e) => {
     if (e) e.preventDefault();
-    const isCorrect = userInput.toLowerCase().trim() === englishText.toLowerCase().trim();
+   // Hàm làm sạch: Chuyển chữ thường, xóa tất cả dấu câu đặc biệt
+    const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
+    
+    // So sánh chuỗi đã được làm sạch
+    const isCorrect = clean(userInput) === clean(englishText);
     if (isCorrect) {
       setCheckStatus('correct');
       setScore(p => ({ ...p, correct: p.correct + 1 }));
@@ -274,8 +278,16 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
       };
 
       recognition.onresult = (event) => {
-        const result = event.results[0][0].transcript.toLowerCase().replace(/[.,?]/g, "").trim();
-        setUserInput(result);
+        const resultRaw = event.results[0][0].transcript;
+        
+        // Hàm làm sạch giống hệt bên trên
+        const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
+        
+        const result = clean(resultRaw);
+        const target = clean(englishText);
+        
+        setUserInput(resultRaw); // Vẫn hiển thị nguyên văn câu bạn vừa nói
+        
         if (result === englishText.toLowerCase().trim()) {
           setCheckStatus('correct');
           setScore(p => ({ ...p, correct: p.correct + 1 }));
