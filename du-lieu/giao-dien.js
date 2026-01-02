@@ -77,10 +77,19 @@ window.AppComponents = {
     const filteredWords = words.filter(w => w.category === selectedCategory.id && (!q || w.word.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q)));
     const filteredSentences = sentences.filter(s => s.category === selectedCategory.id && (!q || s.english.toLowerCase().includes(q) || s.vietnamese.toLowerCase().includes(q)));
 
-    const checkAnswer = (input, original) => {
-      if (!input) return 'pending';
-      return input.toLowerCase().trim() === original.toLowerCase().trim() ? 'correct' : 'incorrect';
-    };
+// Tìm hàm checkAnswer bên trong Detail: (props) => { ... }
+const checkAnswer = (input, original) => {
+  if (!input) return 'pending';
+  
+  // Hàm làm sạch: bỏ dấu câu, viết hoa và khoảng trắng thừa
+  const clean = (str) => (str || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+    .replace(/\s+/g, " ");
+
+  return clean(input) === clean(original) ? 'correct' : 'incorrect';
+};
 
     const speak = (text) => {
       window.speechSynthesis.cancel();
@@ -227,23 +236,24 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
     window.speechSynthesis.speak(msg);
   };
 
-  const handleCheckText = (e) => {
-    if (e) e.preventDefault();
-   // Hàm làm sạch: Chuyển chữ thường, xóa tất cả dấu câu đặc biệt
-    const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
-    
-    // So sánh chuỗi đã được làm sạch
-    const isCorrect = clean(userInput) === clean(englishText);
-    if (isCorrect) {
-      setCheckStatus('correct');
-      setScore(p => ({ ...p, correct: p.correct + 1 }));
-      speak(englishText);
-      setTimeout(() => nextCard(), 1200);
-    } else {
-      setCheckStatus('incorrect');
-      setScore(p => ({ ...p, incorrect: p.incorrect + 1 }));
-    }
-  };
+const handleCheckText = (e) => {
+  if (e) e.preventDefault();
+  
+  // Hàm làm sạch chuỗi: bỏ viết hoa, bỏ dấu chấm, phẩy, hỏi, và khoảng trắng thừa
+  const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
+  
+  const isCorrect = clean(userInput) === clean(englishText);
+  
+  if (isCorrect) {
+    setCheckStatus('correct');
+    setScore(p => ({ ...p, correct: p.correct + 1 }));
+    speak(englishText);
+    setTimeout(() => nextCard(), 1200);
+  } else {
+    setCheckStatus('incorrect');
+    setScore(p => ({ ...p, incorrect: p.incorrect + 1 }));
+  }
+};
 
   const handleVoiceTest = async () => {
     try {
@@ -279,27 +289,33 @@ const FlashcardModal = ({ isOpen, onClose, items }) => {
         stream.getTracks().forEach(t => t.stop());
       };
 
-      recognition.onresult = (event) => {
-        const resultRaw = event.results[0][0].transcript;
-        
-        // Hàm làm sạch giống hệt bên trên
-        const clean = (str) => (str || '').toLowerCase().trim().replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ");
-        
-        const result = clean(resultRaw);
-        const target = clean(englishText);
-        
-        setUserInput(resultRaw); // Vẫn hiển thị nguyên văn câu bạn vừa nói
+recognition.onresult = (event) => {
+  // Lấy văn bản thô từ máy thu âm
+  const resultRaw = event.results[0][0].transcript;
+  
+  // Tạo hàm làm sạch: Bỏ viết hoa, bỏ mọi dấu câu (. , ? !), bỏ khoảng trắng thừa
+  const clean = (str) => (str || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[.,?\/#!$%\^&\*;:{}=\-_`~()]/g, "") // Xóa sạch dấu chấm và các ký tự đặc biệt
+    .replace(/\s+/g, " "); // Biến nhiều khoảng trắng thành 1 khoảng trắng
 
-        if (result === englishText.toLowerCase().trim()) {
-          setCheckStatus('correct');
-          setScore(p => ({ ...p, correct: p.correct + 1 }));
-          speak(englishText);
-          setTimeout(() => nextCard(), 1500);
-        } else {
-          setCheckStatus('incorrect');
-          setScore(p => ({ ...p, incorrect: p.incorrect + 1 }));
-        }
-      };
+  const result = clean(resultRaw);
+  const target = clean(englishText); // englishText là câu gốc trong Flashcard
+
+  setUserInput(resultRaw); // Vẫn hiển thị câu bạn nói (có thể có dấu .) lên màn hình cho đẹp
+
+  // So sánh 2 chuỗi đã được "làm sạch"
+  if (result === target) {
+    setCheckStatus('correct');
+    setScore(p => ({ ...p, correct: p.correct + 1 }));
+    speak(englishText);
+    setTimeout(() => nextCard(), 1500);
+  } else {
+    setCheckStatus('incorrect');
+    setScore(p => ({ ...p, incorrect: p.incorrect + 1 }));
+  }
+};
       recognition.start();
     } catch (err) { alert("Cấp quyền Micro để dùng tính năng này!"); }
   };
