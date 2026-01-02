@@ -91,9 +91,10 @@ Detail: (props) => {
   };
 
   return (
+    /* Lớp bao ngoài cùng cố định để khóa cuộn trang chủ */
     <div className="fixed inset-0 bg-black flex flex-col z-40 overflow-hidden">
       
-      {/* HEADER: Cao 80px đồng bộ với Home */}
+      {/* HEADER: Cao 80px, px-4 đồng bộ hoàn toàn với Home */}
       <div className="w-full bg-black/95 backdrop-blur-md z-50 flex-none border-b border-zinc-800/50">
         <div className="max-w-[1600px] mx-auto px-4 flex items-center gap-2 h-[80px] pt-[env(safe-area-inset-top,0px)]">
           <button onClick={onBack} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white shrink-0">
@@ -104,7 +105,7 @@ Detail: (props) => {
             {detailSearchVisible ? (
               <div className="flex items-center w-full px-2">
                 <div className="text-zinc-500 mr-2 shrink-0"><Icons.SearchIcon size={18} /></div>
-                <input autoFocus placeholder="Tìm nhanh..." className="bg-transparent text-white text-sm font-bold outline-none w-full" value={detailSearchQuery} onChange={e => setDetailSearchQuery(e.target.value)} />
+                <input autoFocus placeholder="Tìm nhanh..." className="bg-transparent text-white text-sm font-bold outline-none w-full py-2" value={detailSearchQuery} onChange={e => setDetailSearchQuery(e.target.value)} />
                 <button onClick={() => { setDetailSearchVisible(false); setDetailSearchQuery(''); }} className="text-zinc-500 shrink-0"><Icons.X /></button>
               </div>
             ) : (
@@ -121,16 +122,24 @@ Detail: (props) => {
 
           <div className="flex items-center gap-1.5 shrink-0">
             {!detailSearchVisible && (
-              <button onClick={() => setDetailSearchVisible(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 shrink-0"><Icons.SearchIcon size={20} /></button>
+              <button onClick={() => setDetailSearchVisible(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 hover:text-white shrink-0">
+                <Icons.SearchIcon size={20} />
+              </button>
             )}
-            <button onClick={() => setIsFlashcardMode(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-yellow-500 shrink-0"><Icons.Layers size={20} /></button>
-            <button onClick={() => setIsQuizMode(!isQuizMode)} className={`p-3 rounded-2xl border transition-all shrink-0 ${isQuizMode ? 'bg-orange-600 border-orange-600 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}><Icons.ShieldCheck size={20} /></button>
-            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white shrink-0 shadow-lg shadow-blue-900/20 active:scale-95 transition-transform"><Icons.Plus size={20} /></button>
+            <button onClick={() => setIsFlashcardMode(true)} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-yellow-500 hover:bg-yellow-500/10 transition-all shrink-0">
+              <Icons.Layers size={20} />
+            </button>
+            <button onClick={() => setIsQuizMode(!isQuizMode)} className={`p-3 rounded-2xl border transition-all shrink-0 ${isQuizMode ? 'bg-orange-600 border-orange-600 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}>
+              <Icons.ShieldCheck size={20} />
+            </button>
+            <button onClick={() => setIsAddingItem(true)} className="bg-blue-600 p-3 rounded-2xl text-white active:scale-90 transition-transform shrink-0 shadow-lg shadow-blue-900/20">
+              <Icons.Plus size={20} />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* NỘI DUNG CUỘN */}
+      {/* NỘI DUNG CUỘN: Đã tối ưu xuống dòng và nút Copy */}
       <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth bg-black">
         <div className="max-w-[1600px] mx-auto px-4 py-6">
           <div className={`grid gap-4 pb-24 ${activeTab === 'vocab' ? 'grid-cols-[repeat(auto-fill,minmax(340px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(340px,1fr))]'}`}>
@@ -146,12 +155,13 @@ Detail: (props) => {
                     {isQuizMode ? (
                       <input className={`w-full bg-black border rounded-xl px-3 py-1.5 text-sm font-bold outline-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
                     ) : (
-                      <h3 className="text-white font-bold text-lg truncate leading-tight">{item.word}</h3>
+                      /* WORD: Cho phép xuống dòng nếu từ quá dài */
+                      <h3 className="text-white font-bold text-lg leading-tight break-words whitespace-normal">{item.word}</h3>
                     )}
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-zinc-500 text-sm truncate pr-2 italic">{item.meaning}</p>
+                    <div className="flex items-center justify-between mt-1 gap-2">
+                      {/* MEANING: Cho phép xuống dòng tối đa 2 dòng */}
+                      <p className="text-zinc-500 text-sm italic break-words whitespace-normal line-clamp-2 flex-1">{item.meaning}</p>
                       
-                      {/* NHÓM NÚT ACTION (ĐÃ THÊM COPY) */}
                       <div className="flex items-center gap-1 shrink-0">
                         <button onClick={() => onEdit(item)} className="text-zinc-600 p-1.5 hover:text-yellow-500"><Icons.Edit size={16} /></button>
                         <button onClick={() => window.LearningLogic.copyToClipboard(item.word)} className="text-zinc-600 p-1.5 hover:text-blue-500"><Icons.Copy size={16} /></button>
@@ -164,17 +174,18 @@ Detail: (props) => {
             }) : filteredSentences.map(item => {
               const status = checkAnswer(quizAnswers[item.id], item.english);
               return (
-                <div key={item.id} className={`bg-zinc-900/50 p-5 rounded-[28px] border transition-all flex items-center min-h-[110px] gap-4 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
-                  <div className="flex-1 min-w-0">
+                <div key={item.id} className={`bg-zinc-900/50 p-5 rounded-[28px] border transition-all flex flex-col justify-center min-h-[120px] gap-2 ${isQuizMode && status === 'correct' ? 'border-green-500 bg-green-500/5' : isQuizMode && status === 'incorrect' ? 'border-red-500 bg-red-500/5' : 'border-zinc-800'}`}>
+                  <div className="w-full">
                     {isQuizMode ? (
                       <textarea rows="1" className={`w-full bg-black border rounded-xl p-2.5 text-sm font-bold outline-none resize-none ${status==='correct'?'border-green-500 text-green-400':'border-zinc-700 text-white'}`} value={quizAnswers[item.id]||''} onChange={e=>setQuizAnswers({...quizAnswers,[item.id]:e.target.value})} />
                     ) : (
-                      <p className="text-white font-bold text-lg leading-snug">{item.english}</p>
+                      /* ENGLISH: Bỏ truncate, cho xuống dòng tự nhiên */
+                      <p className="text-white font-bold text-lg leading-snug break-words whitespace-normal">{item.english}</p>
                     )}
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-zinc-500 text-sm italic truncate">{item.vietnamese}</p>
+                    <div className="flex items-center justify-between mt-2 gap-2">
+                      {/* VIETNAMESE: Cho xuống dòng tự nhiên */}
+                      <p className="text-zinc-500 text-sm italic break-words whitespace-normal line-clamp-2 flex-1">{item.vietnamese}</p>
                       
-                      {/* NHÓM NÚT ACTION (ĐÃ THÊM COPY) */}
                       <div className="flex items-center gap-1 shrink-0">
                         <button onClick={() => onEdit(item)} className="text-zinc-600 p-1.5 hover:text-yellow-500"><Icons.Edit size={16} /></button>
                         <button onClick={() => window.LearningLogic.copyToClipboard(item.english)} className="text-zinc-600 p-1.5 hover:text-blue-500"><Icons.Copy size={16} /></button>
